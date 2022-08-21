@@ -1,8 +1,11 @@
 package com.microservices.chapter3
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -16,56 +19,29 @@ class CustomerController {
 
     //ADD 객체를 주입하낟.
     @Autowired
-    lateinit var customers : ConcurrentHashMap<Int, Customer>
+//    lateinit var customers : ConcurrentHashMap<Int, Customer>
+    private lateinit var customerService: CustomerService
 
-    @RequestMapping(value = arrayOf("/customer/{id}"), method = arrayOf(RequestMethod.GET))
-//    fun getCustomer() = "hello from a controller"
-//    fun getCustomer() = Customer(1, "kotlin")
-//    fun getCustomer() = customer[2]
-    fun getCustomer(@PathVariable id : Int) = customers[id]
+    @GetMapping(value = arrayOf("/customer/{id}"))
+    fun getCustomer(@PathVariable id : Int) = customerService.getCustomer(id)
 
+    @GetMapping(value = arrayOf("/customers"))
+    fun getCustomers(@RequestParam(required = false, defaultValue = "") nameFilter: String) =
+        customerService.searchCustomer(nameFilter)
 
-    @RequestMapping(value = arrayOf("/customers"), method= arrayOf(RequestMethod.GET))
-//    fun getCustomers() = customers.map(
-//        Map.Entry<Int, Customer>::value).toList()
-
-    // ?name을 식별하기 위한 방법
-    fun getCustomer(@RequestParam(required = false, defaultValue = "") nameFilter : String)
-    = customers.filter {
-        it.value.name.contains(nameFilter, true)
-    }.map (Map.Entry<Int, Customer>::value).toList()
-
-
-    // 복수개를 설정할 수 있는 것 테스트
-    @RequestMapping(value = arrayOf("/test", "test2")
-        , method = arrayOf(RequestMethod.GET, RequestMethod.POST))
-    @ResponseBody
-    fun hello() = "aaaa"
-
-
-    @RequestMapping(value = arrayOf("/customer"), method = arrayOf(RequestMethod.POST))
-    fun createCustomer(@RequestBody customer: Customer){
-        customers[customer.id] = customer
+    @PostMapping(value = arrayOf("/customer"))
+    fun createCustomer(@RequestBody customer: Customer) {
+        customerService.createCustomer(customer)
     }
 
-    @RequestMapping(value = arrayOf("/customer/{id}"), method = arrayOf(RequestMethod.DELETE))
-    fun deleteCustomer(@PathVariable id : Int){
-        customers.remove(id)
+    @DeleteMapping(value = arrayOf("/custer/{id}"))
+    fun deleteCustomer(@PathVariable id: Int) {
+        customerService.deleteCustomer(id)
     }
 
-    @RequestMapping( value = arrayOf("/customer/{id}"), method = arrayOf(RequestMethod.PUT))
+    @PutMapping(value = arrayOf("/customer/{id}"))
     fun updateCustomer(@PathVariable id: Int, @RequestBody customer: Customer){
-        customers.remove(id)
-        customers[customer.id] = customer
+        customerService.updateCustomer(id, customer)
     }
-
-
-    @GetMapping(value = arrayOf("/customers_get"))
-    fun getCustomer2(@RequestParam(required = false, defaultValue = "") nameFilter : String)
-            = customers.filter {
-        it.value.name.contains(nameFilter, true)
-    }.map (Map.Entry<Int, Customer>::value).toList()
-
-
 }
 
