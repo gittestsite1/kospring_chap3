@@ -1,7 +1,9 @@
 package com.microservices.chapter3
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
@@ -34,9 +36,36 @@ class CustomerController {
     }.map (Map.Entry<Int, Customer>::value).toList()
 
 
+    // 복수개를 설정할 수 있는 것 테스트
     @RequestMapping(value = arrayOf("/test", "test2")
         , method = arrayOf(RequestMethod.GET, RequestMethod.POST))
     @ResponseBody
     fun hello() = "aaaa"
+
+
+    @RequestMapping(value = arrayOf("/customer"), method = arrayOf(RequestMethod.POST))
+    fun createCustomer(@RequestBody customer: Customer){
+        customers[customer.id] = customer
+    }
+
+    @RequestMapping(value = arrayOf("/customer/{id}"), method = arrayOf(RequestMethod.DELETE))
+    fun deleteCustomer(@PathVariable id : Int){
+        customers.remove(id)
+    }
+
+    @RequestMapping( value = arrayOf("/customer/{id}"), method = arrayOf(RequestMethod.PUT))
+    fun updateCustomer(@PathVariable id: Int, @RequestBody customer: Customer){
+        customers.remove(id)
+        customers[customer.id] = customer
+    }
+
+
+    @GetMapping(value = arrayOf("/customers_get"))
+    fun getCustomer2(@RequestParam(required = false, defaultValue = "") nameFilter : String)
+            = customers.filter {
+        it.value.name.contains(nameFilter, true)
+    }.map (Map.Entry<Int, Customer>::value).toList()
+
+
 }
 
