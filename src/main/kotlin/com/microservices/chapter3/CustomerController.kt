@@ -1,6 +1,8 @@
 package com.microservices.chapter3
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -23,7 +25,9 @@ class CustomerController {
     private lateinit var customerService: CustomerService
 
     @GetMapping(value = arrayOf("/customer/{id}"))
-    fun getCustomer(@PathVariable id : Int) = customerService.getCustomer(id)
+//    fun getCustomer(@PathVariable id : Int) = customerService.getCustomer(id)
+    fun getCustomer(@PathVariable id : Int) =
+        ResponseEntity(customerService.getCustomer(id), HttpStatus.OK)
 
     @GetMapping(value = arrayOf("/customers"))
     fun getCustomers(@RequestParam(required = false, defaultValue = "") nameFilter: String) =
